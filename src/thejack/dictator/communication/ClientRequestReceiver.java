@@ -13,11 +13,9 @@ public class ClientRequestReceiver implements OnMessageReceived {
 		log("Received request!");
 		String commandType = request.getCommandType();
 		log("Command type: " + commandType);
-		if (commandType.equals("start")) {
-			List<String> commandArguments = request.getCommandArguments();
-			for (int i = 1; i < commandArguments.size(); i++) {
-				log("Player named: " + commandArguments.get(i));
-			}
+		List<String> commandArguments = request.getCommandArguments();
+		for (int i = 0; i < commandArguments.size(); i++) {
+			log("Player named: " + commandArguments.get(i));
 		}
 	}
 
