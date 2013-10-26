@@ -9,29 +9,13 @@
     tools:context=".MainActivity" >
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/competativeGameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="18dp"
-        android:layout_marginTop="20dp"
-        android:text="Speak!" />
-
-    <EditText
-        android:id="@+id/editText1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:ems="10"
-        android:inputType="textFilter|textNoSuggestions"
-        android:textAlignment="center"
-        android:textAllCaps="true"
-        android:textSize="32sp" >
-
-        <requestFocus />
-    </EditText>
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="34dp"
+        android:onClick="onClickCompetativeButton"
+        android:text="Competative game" />
 
 </RelativeLayout>

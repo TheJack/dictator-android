@@ -21,6 +21,12 @@ public class TCPClient {
 	PrintWriter out;
 	BufferedReader in;
 
+	private static TCPClient instance;
+
+	public static TCPClient getInstance() {
+		return instance;
+	}
+
 	/**
 	 * Constructor of the class. OnMessagedReceived listens for the messages
 	 * received from server
@@ -29,6 +35,8 @@ public class TCPClient {
 		this.serverIp = serverIp;
 		this.serverPort = serverPort;
 		mMessageListener = listener;
+
+		instance = this;
 	}
 
 	/**

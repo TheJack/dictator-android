@@ -5,19 +5,18 @@ import java.util.Locale;
 import thejack.dictator.communication.ClientRequestReceiver;
 import thejack.dictator.communication.TCPClient;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
 
 public class MainActivity extends Activity implements TextToSpeech.OnInitListener {
 	private TextToSpeech speech;
 	private TCPClient mTcpClient;
 
-	private final static String SERVER_IP = "192.168.43.218";
+	private final static String SERVER_IP = "10.0.249.100";
 	private final static int SERVER_PORT = 3001;
 
 	@Override
@@ -30,35 +29,32 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 		// connect to the server
 		new connectTask().execute("");
 
-		Button speakButton = (Button) findViewById(R.id.button1);
-		speakButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// speech.setPitch(0.5f);
-				// speech.speak("I'm the Dictator.", TextToSpeech.QUEUE_ADD,
-				// null);
-				// speech.playSilence(100, TextToSpeech.QUEUE_ADD, null);
-				// speech.setPitch(3.0f);
-				// speech.setSpeechRate(3.0f);
-				// speech.speak("Ok, dude!", TextToSpeech.QUEUE_ADD, null);
-
-				// sends the message to the server
-				if (mTcpClient != null) {
-					mTcpClient.sendMessage("ebasi!");
-					Log.e("tcp", "ebasi");
-				} else {
-					Log.e("tcp", "fuck");
-				}
-			}
-		});
-
+		// Button speakButton = (Button) findViewById(R.id.button1);
+		// speakButton.setOnClickListener(new View.OnClickListener() {
+		// @Override
+		// public void onClick(View v) {
+		// // speech.setPitch(0.5f);
+		// // speech.speak("I'm the Dictator.", TextToSpeech.QUEUE_ADD,
+		// // null);
+		// // speech.playSilence(100, TextToSpeech.QUEUE_ADD, null);
+		// // speech.setPitch(3.0f);
+		// // speech.setSpeechRate(3.0f);
+		// // speech.speak("Ok, dude!", TextToSpeech.QUEUE_ADD, null);
+		//
+		// // sends the message to the server
+		// if (mTcpClient != null) {
+		// mTcpClient.sendMessage("ebasi!");
+		// Log.e("tcp", "ebasi");
+		// } else {
+		// Log.e("tcp", "fuck");
+		// }
+		// }
+		// });
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void onClickCompetativeButton(View v) {
+		Intent intent = new Intent(this, LoginActivity.class);
+		startActivity(intent);
 	}
 
 	@Override
@@ -76,8 +72,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 	public class connectTask extends AsyncTask<String, String, TCPClient> {
 		@Override
 		protected TCPClient doInBackground(String... message) {
-
-			// we create a TCPClient object and
 			mTcpClient = new TCPClient(SERVER_IP, SERVER_PORT, new ClientRequestReceiver());
 			mTcpClient.run();
 
