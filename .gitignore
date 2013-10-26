@@ -27,3 +27,6 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+# Ignore android support libraries
+libs/android-support-v4.jar
