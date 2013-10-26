@@ -14,7 +14,11 @@ public class GameNetworkRequests {
 	}
 
 	public void sendSetName(Player player) {
-		sendRequest("set_name," + player.getName());
+		sendSetName(player);
+	}
+
+	public void sendSetName(String playerName) {
+		sendRequest("set_name," + playerName);
 	}
 
 	public void sendPlay() {

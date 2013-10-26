@@ -1,22 +1,13 @@
 package thejack.dictator.communication;
 
-import java.util.List;
-
-import thejack.dictator.communication.TCPClient.OnMessageReceived;
+import thejack.dictator.gameplay.GamePlay;
 import android.util.Log;
 
-public class ClientRequestReceiver implements OnMessageReceived {
-	@Override
-	public void messageReceived(String message) {
-		CommandStruct request = RequestParser.parse(message);
+public class ClientRequestReceiver {
+	private GamePlay currentGamePlay;
 
-		log("Received request!");
-		String commandType = request.getCommandType();
-		log("Command type: " + commandType);
-		List<String> commandArguments = request.getCommandArguments();
-		for (int i = 0; i < commandArguments.size(); i++) {
-			log("Player named: " + commandArguments.get(i));
-		}
+	public ClientRequestReceiver(GamePlay gamePlay) {
+		currentGamePlay = gamePlay;
 	}
 
 	private void log(String s) {

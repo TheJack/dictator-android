@@ -1,5 +1,6 @@
 package thejack.dictator.gameplay;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GamePlay {
@@ -25,6 +26,7 @@ public class GamePlay {
 	private GamePlay() {
 		currentRound = -1;
 		isRunning = false;
+		opponents = new ArrayList<Player>();
 		me = new Player("pesho");
 	}
 
@@ -32,7 +34,7 @@ public class GamePlay {
 		me.setName(name);
 	}
 
-	public void newGame(List<String> players) {
+	public void startGame(List<String> players) {
 		if (!isRunning) {
 			opponents.clear();
 			for (String playerName : players) {
@@ -41,7 +43,7 @@ public class GamePlay {
 			}
 
 			isRunning = true;
-			currentRound = -1;
+			currentRound = 1;
 		}
 	}
 
@@ -64,12 +66,10 @@ public class GamePlay {
 		isRunning = false;
 	}
 
-
 	public void playWord(int round, String word) {
-		// game logic to play the word and so on
+
 	}
 
-	
 	public boolean isRunning() {
 		return isRunning;
 	}

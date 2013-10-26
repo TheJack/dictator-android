@@ -7,7 +7,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
+import thejack.dictator.gameplay.GamePlay;
 import android.util.Log;
 
 public class TCPClient {
@@ -15,13 +18,14 @@ public class TCPClient {
 	private String serverIp = "10.0.249.107";
 	private int serverPort = 3001;
 
-	private OnMessageReceived mMessageListener = null;
 	private boolean mRun = false;
+
+	List<IDictatorListener> subscribers;
 
 	PrintWriter out;
 	BufferedReader in;
 
-	private static TCPClient instance;
+	private static TCPClient instance = new TCPClient("10.255.1.18", 3001);
 
 	public static TCPClient getInstance() {
 		return instance;
@@ -31,12 +35,11 @@ public class TCPClient {
 	 * Constructor of the class. OnMessagedReceived listens for the messages
 	 * received from server
 	 */
-	public TCPClient(String serverIp, int serverPort, OnMessageReceived listener) {
+	private TCPClient(String serverIp, int serverPort) {
 		this.serverIp = serverIp;
 		this.serverPort = serverPort;
-		mMessageListener = listener;
 
-		instance = this;
+		subscribers = new ArrayList<IDictatorListener>();
 	}
 
 	/**
@@ -89,9 +92,9 @@ public class TCPClient {
 				while (mRun) {
 					serverMessage = in.readLine();
 
-					if (serverMessage != null && mMessageListener != null) {
+					if (serverMessage != null) {
 						// call the method messageReceived from MyActivity class
-						mMessageListener.messageReceived(serverMessage);
+						messageReceived(serverMessage);
 					}
 					serverMessage = null;
 
@@ -119,10 +122,63 @@ public class TCPClient {
 
 	}
 
-	// Declare the interface. The method messageReceived(String message) will
-	// must be implemented in the MyActivity
-	// class at on asynckTask doInBackground
-	public interface OnMessageReceived {
-		public void messageReceived(String message);
+	public void addSubscriber(IDictatorListener dictatorListener) {
+		subscribers.add(dictatorListener);
+	}
+
+	public void removeSubscriber(IDictatorListener dictatorListener) {
+		subscribers.remove(dictatorListener);
+	}
+
+	public void messageReceived(String message) {
+		CommandStruct request = RequestParser.parse(message);
+		String commandType = request.getCommandType();
+		List<String> args = request.getCommandArguments();
+
+		if (commandType.equals("start")) {
+			List<String> players = args.subList(1, args.size());
+			GamePlay.getInstance().startGame(players);
+
+			for (IDictatorListener listener : subscribers) {
+				listener.onGameStarted();
+			}
+		} else if (commandType.equals("round")) {
+			int n = Integer.parseInt(args.get(0));
+			String word = args.get(1);
+			GamePlay.getInstance().playWord(n, word);
+
+			for (IDictatorListener listener : subscribers) {
+				listener.onRound(n, word);
+			}
+		} else if (commandType.equals("update_scores")) {
+			List<Integer> scores = new ArrayList<Integer>();
+
+			for (int i = 0; i < args.size(); i++) {
+				scores.add(Integer.parseInt(args.get(i)));
+			}
+			GamePlay.getInstance().updateScores(scores);
+		} else if (commandType.equals("update_typing_state")) {
+			List<Boolean> typingStates = new ArrayList<Boolean>();
+
+			for (int i = 0; i < args.size(); i++) {
+				typingStates.add(Boolean.parseBoolean(args.get(i)));
+			}
+			GamePlay.getInstance().updateTyping(typingStates);
+
+			for (IDictatorListener listener : subscribers) {
+				listener.onUpdateTypingState(typingStates);
+			}
+		} else if (commandType.equals("end")) {
+			List<Integer> scores = new ArrayList<Integer>();
+
+			for (int i = 0; i < args.size(); i++) {
+				scores.add(Integer.parseInt(args.get(i)));
+			}
+			GamePlay.getInstance().endGame(scores);
+
+			for (IDictatorListener listener : subscribers) {
+				listener.onGameEnd(scores);
+			}
+		}
 	}
 }

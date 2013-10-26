@@ -2,9 +2,9 @@ package thejack.dictator;
 
 import java.util.Locale;
 
-import thejack.dictator.communication.ClientRequestReceiver;
 import thejack.dictator.communication.TCPClient;
-import android.app.Activity;
+import thejack.dictator.gameplay.GamePlay;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,11 +12,12 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
 
-public class MainActivity extends Activity implements TextToSpeech.OnInitListener {
+@SuppressLint("NewApi")
+public class MainActivity extends BaseActivity implements TextToSpeech.OnInitListener {
 	private TextToSpeech speech;
 	private TCPClient mTcpClient;
 
-	private final static String SERVER_IP = "10.0.249.100";
+	private final static String SERVER_IP = "10.255.1.18";
 	private final static int SERVER_PORT = 3001;
 
 	@Override
@@ -24,32 +25,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		speech = new TextToSpeech(this, this);
-
 		// connect to the server
-		new connectTask().execute("");
-
-		// Button speakButton = (Button) findViewById(R.id.button1);
-		// speakButton.setOnClickListener(new View.OnClickListener() {
-		// @Override
-		// public void onClick(View v) {
-		// // speech.setPitch(0.5f);
-		// // speech.speak("I'm the Dictator.", TextToSpeech.QUEUE_ADD,
-		// // null);
-		// // speech.playSilence(100, TextToSpeech.QUEUE_ADD, null);
-		// // speech.setPitch(3.0f);
-		// // speech.setSpeechRate(3.0f);
-		// // speech.speak("Ok, dude!", TextToSpeech.QUEUE_ADD, null);
-		//
-		// // sends the message to the server
-		// if (mTcpClient != null) {
-		// mTcpClient.sendMessage("ebasi!");
-		// Log.e("tcp", "ebasi");
-		// } else {
-		// Log.e("tcp", "fuck");
-		// }
-		// }
-		// });
+		new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
 	}
 
 	public void onClickCompetativeButton(View v) {
@@ -69,10 +46,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 		}
 	}
 
-	public class connectTask extends AsyncTask<String, String, TCPClient> {
+	public class ConnectTask extends AsyncTask<String, String, TCPClient> {
 		@Override
 		protected TCPClient doInBackground(String... message) {
-			mTcpClient = new TCPClient(SERVER_IP, SERVER_PORT, new ClientRequestReceiver());
+			GamePlay gamePlay = GamePlay.getInstance();
+			mTcpClient = TCPClient.getInstance();
 			mTcpClient.run();
 
 			return null;
@@ -81,13 +59,6 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 		@Override
 		protected void onProgressUpdate(String... values) {
 			super.onProgressUpdate(values);
-
-			// in the arrayList we add the messaged received from server
-			// arrayList.add(values[0]);
-			// notify the adapter that the data set has changed. This means that
-			// new message received
-			// from server was added to the list
-			// mAdapter.notifyDataSetChanged();
 		}
 	}
 }
