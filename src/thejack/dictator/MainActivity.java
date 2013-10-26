@@ -2,6 +2,7 @@ package thejack.dictator;
 
 import java.util.Locale;
 
+import thejack.dictator.communication.ClientRequestReceiver;
 import thejack.dictator.communication.TCPClient;
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -16,7 +17,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 	private TextToSpeech speech;
 	private TCPClient mTcpClient;
 
-	private final static String SERVER_IP = "10.0.249.107";
+	private final static String SERVER_IP = "192.168.43.218";
 	private final static int SERVER_PORT = 3001;
 
 	@Override
@@ -77,14 +78,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
 		protected TCPClient doInBackground(String... message) {
 
 			// we create a TCPClient object and
-			mTcpClient = new TCPClient(SERVER_IP, SERVER_PORT, new TCPClient.OnMessageReceived() {
-				@Override
-				// here the messageReceived method is implemented
-				public void messageReceived(String message) {
-					// this method calls the onProgressUpdate
-					// publishProgress(message);
-				}
-			});
+			mTcpClient = new TCPClient(SERVER_IP, SERVER_PORT, new ClientRequestReceiver());
 			mTcpClient.run();
 
 			return null;
