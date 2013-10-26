@@ -30,3 +30,6 @@ proguard/
 
 # Ignore android support libraries
 libs/android-support-v4.jar
+
+# Log files
+*.log
