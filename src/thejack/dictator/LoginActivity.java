@@ -1,13 +1,13 @@
 package thejack.dictator;
 
-import thejack.dictator.communication.GameNetworkRequests;
-import thejack.dictator.communication.TCPClient;
+import thejack.dictator.gameplay.GamePlay;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -16,11 +16,6 @@ import android.widget.TextView;
  * well.
  */
 public class LoginActivity extends BaseActivity {
-	/**
-	 * Keep track of the login task to ensure we can cancel it if requested.
-	 */
-	private UserLoginTask mAuthTask = null;
-
 	// Values for email and password at the time of the login attempt.
 	private String mUsername;
 
@@ -59,10 +54,6 @@ public class LoginActivity extends BaseActivity {
 	 */
 	@SuppressLint("NewApi")
 	public void attemptLogin() {
-		if (mAuthTask != null) {
-			return;
-		}
-
 		// Reset errors.
 		mUsernameView.setError(null);
 
@@ -93,9 +84,10 @@ public class LoginActivity extends BaseActivity {
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 
-			mAuthTask = new UserLoginTask();
-			mAuthTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
-
+			GamePlay currGamePlay = GamePlay.getInstance();
+			currGamePlay.setMyName(mUsername);
+			currGamePlay.sendSetName();
+			currGamePlay.sendPlay();
 		}
 	}
 
@@ -107,20 +99,10 @@ public class LoginActivity extends BaseActivity {
 		// and hide the relevant UI components.
 		mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
 		mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-	}
 
-	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
-	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... params) {
-			GameNetworkRequests gnr = new GameNetworkRequests(TCPClient.getInstance());
-			gnr.sendSetName(mUsername);
-			gnr.sendPlay();
-
-			return false;
+		if (show) {
+			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mUsernameView.getWindowToken(), 0);
 		}
 	}
 
@@ -128,7 +110,6 @@ public class LoginActivity extends BaseActivity {
 		mLoginFormView.post(new Runnable() {
 			@Override
 			public void run() {
-				mAuthTask = null;
 				showProgress(false);
 
 				Intent intent = new Intent(LoginActivity.this, GameActivity.class);

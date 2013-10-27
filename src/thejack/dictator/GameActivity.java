@@ -10,15 +10,18 @@ import thejack.dictator.gameplay.GamePlay;
 import thejack.dictator.gameplay.Player;
 import thejack.dictator.gameplay.SoundDictator;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 @SuppressLint({ "NewApi", "SimpleDateFormat" })
 public class GameActivity extends BaseActivity implements TextToSpeech.OnInitListener {
@@ -33,6 +36,8 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 	private TextView scoresTextView;
 
 	private TextView countDownTimerTextView;
+
+	private GamePlay gamePlay;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +55,32 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		speech = new TextToSpeech(this, this);
 
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.showSoftInput(textField, InputMethodManager.SHOW_IMPLICIT);
+		gamePlay = GamePlay.getInstance();
+
+		// InputMethodManager imm = (InputMethodManager)
+		// getSystemService(Context.INPUT_METHOD_SERVICE);
+		// imm.showSoftInput(textField, InputMethodManager.SHOW_FORCED);
+
+		textField.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				boolean handled = false;
+				if (actionId == EditorInfo.IME_ACTION_SEND) {
+					String word = v.getText().toString();
+					gamePlay.sendAnswer(word);
+					v.setText("");
+				}
+				return handled;
+			}
+		});
+
+		textField.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				// / Implement typing state update here.
+				return false;
+			}
+		});
 
 		List<Player> opponents = GamePlay.getInstance().getOpponents();
 		updateScoreBoard(opponents);

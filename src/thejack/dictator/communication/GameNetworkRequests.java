@@ -3,33 +3,27 @@ package thejack.dictator.communication;
 import thejack.dictator.gameplay.Player;
 
 public class GameNetworkRequests {
-	private TCPClient tcpClient;
-
-	public GameNetworkRequests(TCPClient client) {
-		tcpClient = client;
+	private static void sendRequest(String request) {
+		TCPClient.getInstance().sendMessage(request + "\n");
 	}
 
-	private void sendRequest(String request) {
-		tcpClient.sendMessage(request + "\n");
-	}
-
-	public void sendSetName(Player player) {
+	public static void sendSetName(Player player) {
 		sendSetName(player);
 	}
 
-	public void sendSetName(String playerName) {
+	public static void sendSetName(String playerName) {
 		sendRequest("set_name," + playerName);
 	}
 
-	public void sendPlay() {
+	public static void sendPlay() {
 		sendRequest("play");
 	}
 
-	public void sendAnswer(int round, String word) {
+	public static void sendAnswer(int round, String word) {
 		sendRequest("answer," + round + "," + word);
 	}
 
-	public void sendTyping(boolean isTyping) {
-		sendRequest("update_typing_state," + isTyping);
+	public static void sendTypingState(boolean isTyping) {
+		sendRequest("update_typing_state," + (isTyping ? "1" : 0));
 	}
 }

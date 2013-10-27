@@ -3,6 +3,7 @@ package thejack.dictator.gameplay;
 import java.util.ArrayList;
 import java.util.List;
 
+import thejack.dictator.communication.GameNetworkRequests;
 import thejack.dictator.communication.IDictatorListener;
 
 public class GamePlay {
@@ -113,5 +114,21 @@ public class GamePlay {
 
 	public List<Player> getOpponents() {
 		return opponents;
+	}
+
+	public void sendAnswer(String answer) {
+		GameNetworkRequests.sendAnswer(currentRound, answer);
+	}
+
+	public void sendUpdateTypingState(boolean isTyping) {
+		GameNetworkRequests.sendTypingState(isTyping);
+	}
+
+	public void sendSetName() {
+		GameNetworkRequests.sendSetName(me.getName());
+	}
+
+	public void sendPlay() {
+		GameNetworkRequests.sendPlay();
 	}
 }
