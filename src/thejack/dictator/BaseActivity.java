@@ -3,20 +3,21 @@ package thejack.dictator;
 import java.util.List;
 
 import thejack.dictator.communication.IDictatorListener;
-import thejack.dictator.communication.TCPClient;
+import thejack.dictator.gameplay.GamePlay;
+import thejack.dictator.gameplay.Player;
 import android.app.Activity;
 
 public class BaseActivity extends Activity implements IDictatorListener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		TCPClient.getInstance().addSubscriber(this);
+		GamePlay.getInstance().addSubscriber(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		TCPClient.getInstance().removeSubscriber(this);
+		GamePlay.getInstance().removeSubscriber(this);
 	}
 
 	@Override
@@ -29,15 +30,11 @@ public class BaseActivity extends Activity implements IDictatorListener {
 	}
 
 	@Override
-	public void onUpdateScores(List<Integer> scores) {
+	public void onGameEnd(List<Player> opponents) {
 	}
 
 	@Override
-	public void onUpdateTypingState(List<Boolean> typingStates) {
-	}
-
-	@Override
-	public void onGameEnd(List<Integer> scores) {
+	public void onUpdateScoreBoard(List<Player> opponents) {
 	}
 
 }

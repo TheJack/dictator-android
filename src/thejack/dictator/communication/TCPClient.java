@@ -20,12 +20,10 @@ public class TCPClient {
 
 	private boolean mRun = false;
 
-	List<IDictatorListener> subscribers;
-
 	PrintWriter out;
 	BufferedReader in;
 
-	private static TCPClient instance = new TCPClient("10.255.1.18", 3001);
+	private static TCPClient instance = new TCPClient("10.0.249.107", 3001);
 
 	public static TCPClient getInstance() {
 		return instance;
@@ -38,8 +36,6 @@ public class TCPClient {
 	private TCPClient(String serverIp, int serverPort) {
 		this.serverIp = serverIp;
 		this.serverPort = serverPort;
-
-		subscribers = new ArrayList<IDictatorListener>();
 	}
 
 	/**
@@ -122,14 +118,6 @@ public class TCPClient {
 
 	}
 
-	public void addSubscriber(IDictatorListener dictatorListener) {
-		subscribers.add(dictatorListener);
-	}
-
-	public void removeSubscriber(IDictatorListener dictatorListener) {
-		subscribers.remove(dictatorListener);
-	}
-
 	public void messageReceived(String message) {
 		CommandStruct request = RequestParser.parse(message);
 		String commandType = request.getCommandType();
@@ -139,18 +127,11 @@ public class TCPClient {
 			List<String> players = args.subList(1, args.size());
 			GamePlay.getInstance().startGame(players);
 
-			for (IDictatorListener listener : subscribers) {
-				listener.onGameStarted();
-			}
 		} else if (commandType.equals("round")) {
 			int n = Integer.parseInt(args.get(0));
 			String word = args.get(1);
 			int timeout = Integer.parseInt(args.get(2));
 			GamePlay.getInstance().playWord(n, word, timeout);
-
-			for (IDictatorListener listener : subscribers) {
-				listener.onRound(n, word, timeout);
-			}
 		} else if (commandType.equals("update_scores")) {
 			List<Integer> scores = new ArrayList<Integer>();
 
@@ -162,13 +143,10 @@ public class TCPClient {
 			List<Boolean> typingStates = new ArrayList<Boolean>();
 
 			for (int i = 0; i < args.size(); i++) {
-				typingStates.add(Boolean.parseBoolean(args.get(i)));
+				typingStates.add(args.get(i).equals("0") ? false : true);
 			}
 			GamePlay.getInstance().updateTyping(typingStates);
 
-			for (IDictatorListener listener : subscribers) {
-				listener.onUpdateTypingState(typingStates);
-			}
 		} else if (commandType.equals("end")) {
 			List<Integer> scores = new ArrayList<Integer>();
 
@@ -176,10 +154,6 @@ public class TCPClient {
 				scores.add(Integer.parseInt(args.get(i)));
 			}
 			GamePlay.getInstance().endGame(scores);
-
-			for (IDictatorListener listener : subscribers) {
-				listener.onGameEnd(scores);
-			}
 		}
 	}
 }

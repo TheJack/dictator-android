@@ -3,10 +3,14 @@ package thejack.dictator.gameplay;
 import java.util.ArrayList;
 import java.util.List;
 
+import thejack.dictator.communication.IDictatorListener;
+
 public class GamePlay {
 	private Player me;
 
 	private int currentRound;
+
+	private String currentWord;
 
 	private boolean isRunning;
 
@@ -14,7 +18,15 @@ public class GamePlay {
 
 	private List<Player> opponents;
 
-	private SoundDictator dictator;
+	List<IDictatorListener> subscribers;
+
+	public void addSubscriber(IDictatorListener dictatorListener) {
+		subscribers.add(dictatorListener);
+	}
+
+	public void removeSubscriber(IDictatorListener dictatorListener) {
+		subscribers.remove(dictatorListener);
+	}
 
 	public static GamePlay getInstance() {
 		if (instance == null) {
@@ -28,6 +40,7 @@ public class GamePlay {
 		isRunning = false;
 		opponents = new ArrayList<Player>();
 		me = new Player("pesho");
+		subscribers = new ArrayList<IDictatorListener>();
 	}
 
 	public void setMyName(String name) {
@@ -35,16 +48,19 @@ public class GamePlay {
 	}
 
 	public void startGame(List<String> players) {
-		if (!isRunning) {
-			opponents.clear();
-			for (String playerName : players) {
-				Player opponent = new Player(playerName);
-				opponents.add(opponent);
-			}
-
-			isRunning = true;
-			currentRound = 1;
+		opponents.clear();
+		for (String playerName : players) {
+			Player opponent = new Player(playerName);
+			opponents.add(opponent);
 		}
+
+		isRunning = true;
+		currentRound = 1;
+
+		for (IDictatorListener listener : subscribers) {
+			listener.onGameStarted();
+		}
+		updateScoreBoard();
 	}
 
 	public void updateScores(List<Integer> scores) {
@@ -52,6 +68,7 @@ public class GamePlay {
 			Player opponent = opponents.get(i);
 			opponent.setScore(scores.get(i));
 		}
+		updateScoreBoard();
 	}
 
 	public void updateTyping(List<Boolean> playersTyping) {
@@ -59,6 +76,7 @@ public class GamePlay {
 			Player opponent = opponents.get(i);
 			opponent.setTyping(playersTyping.get(i));
 		}
+		updateScoreBoard();
 	}
 
 	public void endGame(List<Integer> scores) {
@@ -66,8 +84,19 @@ public class GamePlay {
 		isRunning = false;
 	}
 
-	public void playWord(int round, String word, int timeout) {
+	private void updateScoreBoard() {
+		for (IDictatorListener listener : subscribers) {
+			listener.onUpdateScoreBoard(opponents);
+		}
+	}
 
+	public void playWord(int round, String word, int timeout) {
+		currentRound = round;
+		currentWord = word;
+
+		for (IDictatorListener listener : subscribers) {
+			listener.onRound(round, word, timeout);
+		}
 	}
 
 	public boolean isRunning() {
@@ -80,9 +109,5 @@ public class GamePlay {
 
 	public void updateMyScore(int myScore) {
 		me.setScore(myScore);
-	}
-
-	public void setDicatator(SoundDictator dictator) {
-		this.dictator = dictator;
 	}
 }

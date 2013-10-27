@@ -2,14 +2,14 @@ package thejack.dictator.communication;
 
 import java.util.List;
 
+import thejack.dictator.gameplay.Player;
+
 public interface IDictatorListener {
 	public void onGameStarted();
 
-	public void onRound(int n, String word, int timeout);
+	public void onRound(final int n, final String word, final int timeout);
 
-	public void onUpdateScores(List<Integer> scores);
+	public void onGameEnd(final List<Player> opponents);
 
-	public void onUpdateTypingState(List<Boolean> typingStates);
-
-	public void onGameEnd(List<Integer> scores);
+	public void onUpdateScoreBoard(final List<Player> opponents);
 }

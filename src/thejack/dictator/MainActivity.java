@@ -17,9 +17,6 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 	private TextToSpeech speech;
 	private TCPClient mTcpClient;
 
-	private final static String SERVER_IP = "10.255.1.18";
-	private final static int SERVER_PORT = 3001;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
