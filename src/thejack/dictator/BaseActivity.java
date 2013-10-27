@@ -26,7 +26,7 @@ public class BaseActivity extends Activity implements IDictatorListener {
 	}
 
 	@Override
-	public void onGameEnd(List<Player> opponents) {
+	public void onGameEnd() {
 	}
 
 	@Override

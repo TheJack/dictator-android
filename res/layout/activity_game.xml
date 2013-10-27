@@ -18,11 +18,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="15dp"
             android:fontFamily="sans-serif-light"
             android:paddingBottom="10dp"
             android:paddingLeft="10dp"
-            android:paddingTop="40dp"
+            android:paddingTop="20dp"
             android:text="Online game"
             android:textSize="40sp" />
 
@@ -35,28 +35,33 @@
             android:textSize="30sp" >
         </View>
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-        </LinearLayout>
 
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
         <TextView
             android:id="@+id/myScoreTextView"
+            android:fontFamily="sans-serif-light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/wordField"
-            android:layout_below="@+id/textView2"
             android:layout_marginTop="16dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
             android:text="My Score: 0"
             android:textSize="20sp" />
 
         <TextView
             android:id="@+id/scoresTextView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-light"
             android:layout_height="wrap_content"
-            android:layout_alignRight="@+id/wordField"
-            android:layout_alignTop="@+id/myScoreTextView" />
+            />
+        </RelativeLayout>
+
+
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -65,6 +70,8 @@
             <TextView
                 android:id="@+id/countDownTimerTextView"
                 android:layout_width="wrap_content"
+                
+            android:fontFamily="sans-serif-light"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="16dp"
@@ -75,6 +82,8 @@
         <EditText
             android:id="@+id/wordField"
             android:layout_width="wrap_content"
+            
+            android:fontFamily="sans-serif-light"
             android:layout_height="wrap_content"
             android:layout_below="@+id/countDownTimerTextView"
             android:layout_centerHorizontal="true"

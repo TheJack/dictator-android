@@ -16,10 +16,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.tts.TextToSpeech;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -62,7 +62,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		speech = new TextToSpeech(this, this);
 
 		speech.setSpeechRate(0.4f);
-		speech.setPitch(0.1f);
+		// speech.setPitch(0.1f);
 
 		gamePlay = GamePlay.getInstance();
 
@@ -83,13 +83,21 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 				return handled;
 			}
 		});
-
-		textField.setOnKeyListener(new OnKeyListener() {
+		textField.addTextChangedListener(new TextWatcher() {
 			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
+			public void afterTextChanged(Editable e) {
 				gamePlay.sendUpdateTypingState(true);
 				sendNotTyping();
-				return false;
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+				// nothing needed here...
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// nothing needed here...
 			}
 		});
 
@@ -132,7 +140,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		myScoreTextView.post(new Runnable() {
 			@Override
 			public void run() {
-				Log.e("onRound", Integer.toString(timeout));
+				// Log.e("onRound", Integer.toString(timeout));
 				new CountDownTimer(timeout * 1000, 1000) {
 					public void onTick(long millisUntilFinished) {
 						Date date = new Date(millisUntilFinished);
@@ -165,7 +173,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			Log.w("GameCycleTask", "Started.");
 			while (!isCancelled()) {
 				if (speakingInited) {
-					Log.w("GameCycleTask", "Current round: " + currentRound);
+					// Log.w("GameCycleTask", "Current round: " + currentRound);
 					if (currentRound == null) {
 						currentRound = GamePlay.getInstance().getNextRound();
 						if (currentRound != null) {
@@ -263,7 +271,10 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 	}
 
 	private void sendNotTyping() {
-		if (sendNotTypingTask == null || sendNotTypingTask.isCancelled()) {
+		if (sendNotTypingTask == null) {
+			sendNotTypingTask = new TypingStateTask();
+			sendNotTypingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+		} else if (sendNotTypingTask.isCancelled()) {
 			sendNotTypingTask = new TypingStateTask();
 			sendNotTypingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
 		} else {
@@ -288,7 +299,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		}
 	}
 
-	public void onGameEnd(final List<Player> opponents) {
+	public void onGameEnd() {
 		countDownTimerTextView.post(new Runnable() {
 			@Override
 			public void run() {

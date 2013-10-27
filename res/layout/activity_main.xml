@@ -13,48 +13,54 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <TextView 
-            android:text="Game modes"
+        <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-light"
-            android:paddingLeft="10dp"
             android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
             android:paddingTop="40dp"
-            android:textSize="40sp"/>
+            android:text="Game modes"
+            android:textSize="40sp" />
+
         <View
             android:layout_width="fill_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
-                          android:paddingTop="10dp"
             android:paddingBottom="25dp"
-            android:textSize="30sp"></View>
-        <TextView 
-            android:text="Training mode"
-            android:clickable="true"
+            android:paddingTop="10dp"
+            android:textSize="30sp" >
+        </View>
+
+        <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:fontFamily="sans-serif-light"
             android:paddingLeft="10dp"
             android:paddingTop="20dp"
-            android:textSize="25sp"/>
-                        <TextView 
-            android:text="Competitive mode"
-            android:clickable="true"
+            android:text="Training mode"
+            android:textSize="25sp" />
+
+        <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:fontFamily="sans-serif-light"
-            android:padding="10dp"
             android:onClick="onClickCompetativeButton"
-            android:textSize="25sp"/>
-                                <TextView 
-            android:text="Exit"
-            android:clickable="true"
+            android:paddingLeft="10dp"
+            android:paddingTop="10dp"
+            android:text="Competitive mode"
+            android:textSize="25sp" />
+
+        <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:clickable="true"
             android:fontFamily="sans-serif-light"
-            android:textSize="25sp"/>
-	    
-</LinearLayout>
+            android:padding="10dp"
+            android:text="Exit"
+            android:textSize="25sp" />
+    </LinearLayout>
+
 </RelativeLayout>

@@ -86,6 +86,9 @@ public class GamePlay {
 
 	public void endGame(List<Integer> scores) {
 		updateScores(scores);
+		for (IDictatorListener listener : subscribers) {
+			listener.onGameEnd();
+		}
 		isRunning = false;
 	}
 

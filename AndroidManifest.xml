@@ -30,7 +30,8 @@
         </activity>
         <activity
             android:name="thejack.dictator.GameActivity"
-            android:label="@string/title_activity_game" >
+            android:label="@string/title_activity_game" 
+            android:windowSoftInputMode="adjustPan|adjustResize">
         </activity>
         <activity
             android:name="thejack.dictator.EndActivity"
