@@ -66,7 +66,7 @@ public class GamePlay {
 		isRunning = false;
 	}
 
-	public void playWord(int round, String word) {
+	public void playWord(int round, String word, int timeout) {
 
 	}
 

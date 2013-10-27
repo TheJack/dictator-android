@@ -25,7 +25,7 @@ public class BaseActivity extends Activity implements IDictatorListener {
 	}
 
 	@Override
-	public void onRound(int n, String word) {
+	public void onRound(int n, String word, int timeout) {
 	}
 
 	@Override

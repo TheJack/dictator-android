@@ -145,10 +145,11 @@ public class TCPClient {
 		} else if (commandType.equals("round")) {
 			int n = Integer.parseInt(args.get(0));
 			String word = args.get(1);
-			GamePlay.getInstance().playWord(n, word);
+			int timeout = Integer.parseInt(args.get(2));
+			GamePlay.getInstance().playWord(n, word, timeout);
 
 			for (IDictatorListener listener : subscribers) {
-				listener.onRound(n, word);
+				listener.onRound(n, word, timeout);
 			}
 		} else if (commandType.equals("update_scores")) {
 			List<Integer> scores = new ArrayList<Integer>();

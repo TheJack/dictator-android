@@ -5,7 +5,7 @@ import java.util.List;
 public interface IDictatorListener {
 	public void onGameStarted();
 
-	public void onRound(int n, String word);
+	public void onRound(int n, String word, int timeout);
 
 	public void onUpdateScores(List<Integer> scores);
 
