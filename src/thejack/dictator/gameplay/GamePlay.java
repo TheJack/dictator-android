@@ -110,4 +110,8 @@ public class GamePlay {
 	public void updateMyScore(int myScore) {
 		me.setScore(myScore);
 	}
+
+	public List<Player> getOpponents() {
+		return opponents;
+	}
 }

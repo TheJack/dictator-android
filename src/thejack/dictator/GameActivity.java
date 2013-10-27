@@ -6,10 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import thejack.dictator.gameplay.GamePlay;
 import thejack.dictator.gameplay.Player;
 import thejack.dictator.gameplay.SoundDictator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.tts.TextToSpeech;
@@ -50,6 +52,9 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(textField, InputMethodManager.SHOW_IMPLICIT);
+
+		List<Player> opponents = GamePlay.getInstance().getOpponents();
+		updateScoreBoard(opponents);
 	}
 
 	@Override
@@ -75,6 +80,11 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 						Date date = new Date(millisUntilFinished);
 						DateFormat formatter = new SimpleDateFormat("mm:ss");
 						String dateFormatted = formatter.format(date);
+						if (millisUntilFinished < 5000) {
+							countDownTimerTextView.setTextColor(Color.RED);
+						} else {
+							countDownTimerTextView.setTextColor(Color.BLACK);
+						}
 
 						countDownTimerTextView.setText(dateFormatted);
 					}
@@ -93,18 +103,22 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		scoresTextView.post(new Runnable() {
 			@Override
 			public void run() {
-				StringBuilder scoresText = new StringBuilder();
-				for (Player opponent : opponents) {
-					scoresText.append(opponent.getName());
-					scoresText.append(": ");
-					scoresText.append(opponent.getScore());
-					scoresText.append(" points");
-					if (opponent.isTyping()) {
-						scoresText.append(" (typing)");
-					}
-				}
-				scoresTextView.setText(scoresText.toString());
+				updateScoreBoard(opponents);
 			}
 		});
+	}
+
+	private void updateScoreBoard(final List<Player> opponents) {
+		StringBuilder scoresText = new StringBuilder();
+		for (Player opponent : opponents) {
+			scoresText.append(opponent.getName());
+			scoresText.append(": ");
+			scoresText.append(opponent.getScore());
+			scoresText.append(" points");
+			if (opponent.isTyping()) {
+				scoresText.append(" (typing)");
+			}
+		}
+		scoresTextView.setText(scoresText.toString());
 	}
 }

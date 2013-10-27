@@ -10,6 +10,7 @@ public class Player {
 	public Player(String name) {
 		this.name = name;
 		score = 0;
+		isTyping = false;
 	}
 
 	public String getName() {
