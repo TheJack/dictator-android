@@ -10,6 +10,7 @@ import thejack.dictator.gameplay.GamePlay;
 import thejack.dictator.gameplay.Player;
 import thejack.dictator.gameplay.Round;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -42,6 +43,8 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 	private boolean speakingInited = false;
 
+	private TypingStateTask sendNotTypingTask;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,6 +61,9 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		speech = new TextToSpeech(this, this);
 
+		speech.setSpeechRate(0.4f);
+		speech.setPitch(0.1f);
+
 		gamePlay = GamePlay.getInstance();
 
 		// InputMethodManager imm = (InputMethodManager)
@@ -69,10 +75,10 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				boolean handled = false;
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
-					changeTimerColor(Color.GREEN);
-					v.setText("");
 					String word = v.getText().toString();
 					gamePlay.sendAnswer(word);
+					changeTimerColor(Color.GREEN);
+					v.setText("");
 				}
 				return handled;
 			}
@@ -81,7 +87,8 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		textField.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				// / Implement typing state update here.
+				gamePlay.sendUpdateTypingState(true);
+				sendNotTyping();
 				return false;
 			}
 		});
@@ -134,7 +141,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 						if (millisUntilFinished < 5000) {
 							countDownTimerTextView.setTextColor(Color.RED);
 						} else {
-							countDownTimerTextView.setTextColor(Color.BLACK);
+							countDownTimerTextView.setTextColor(Color.LTGRAY);
 						}
 
 						countDownTimerTextView.setText(dateFormatted);
@@ -163,12 +170,6 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 						currentRound = GamePlay.getInstance().getNextRound();
 						if (currentRound != null) {
 							currentRound.startedAt = System.currentTimeMillis();
-							// Deployment.Current.Dispatcher.BeginInvoke(() =>
-							// {
-							// this.AnswerTextBox.Text = "";
-							// this.RoundTextBlock.Text = "Round " +
-							// currentRound.RoundNumber;
-							// });
 							Log.w("GameCycleTask", "Current word: " + currentRound.getWord());
 							speech.speak(currentRound.getWord(), TextToSpeech.QUEUE_ADD, null);
 						}
@@ -204,7 +205,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 									if (millisUntilFinished < 5000 && !currentRound.answered) {
 										asyncChangeTimeColor(Color.RED);
 									} else if (!currentRound.answered) {
-										asyncChangeTimeColor(Color.BLACK);
+										asyncChangeTimeColor(Color.LTGRAY);
 									}
 								}
 							});
@@ -243,6 +244,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			if (opponent.isTyping()) {
 				scoresText.append(" (typing)");
 			}
+			scoresText.append("\n");
 		}
 		scoresTextView.setText(scoresText.toString());
 	}
@@ -258,5 +260,41 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 	private void changeTimerColor(int color) {
 		countDownTimerTextView.setTextColor(color);
+	}
+
+	private void sendNotTyping() {
+		if (sendNotTypingTask == null || sendNotTypingTask.isCancelled()) {
+			sendNotTypingTask = new TypingStateTask();
+			sendNotTypingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+		} else {
+			sendNotTypingTask.cancel(true);
+			sendNotTypingTask = new TypingStateTask();
+			sendNotTypingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+		}
+	}
+
+	public class TypingStateTask extends android.os.AsyncTask<String, Void, Void> {
+		@Override
+		protected Void doInBackground(String... arg0) {
+			try {
+				Thread.sleep(1500);
+				if (!isCancelled()) {
+					gamePlay.sendUpdateTypingState(false);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+	}
+
+	public void onGameEnd(final List<Player> opponents) {
+		countDownTimerTextView.post(new Runnable() {
+			@Override
+			public void run() {
+				Intent intent = new Intent(GameActivity.this, EndActivity.class);
+				startActivity(intent);
+			}
+		});
 	}
 }

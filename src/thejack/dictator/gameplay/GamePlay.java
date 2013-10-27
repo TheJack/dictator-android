@@ -126,6 +126,7 @@ public class GamePlay {
 	}
 
 	public void sendAnswer(String answer) {
+		currentRound.answered = true;
 		GameNetworkRequests.sendAnswer(currentRound.getRoundNum(), answer);
 	}
 

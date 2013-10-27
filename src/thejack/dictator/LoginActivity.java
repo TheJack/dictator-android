@@ -6,10 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -39,10 +42,15 @@ public class LoginActivity extends BaseActivity {
 		mLoginStatusView = findViewById(R.id.login_status);
 		mLoginStatusMessageView = (TextView) findViewById(R.id.login_status_message);
 
-		findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+		mUsernameView.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
-			public void onClick(View view) {
-				attemptLogin();
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				boolean handled = false;
+				if (actionId == EditorInfo.IME_ACTION_SEND) {
+					attemptLogin();
+					handled = true;
+				}
+				return handled;
 			}
 		});
 	}

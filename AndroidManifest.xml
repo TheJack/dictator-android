@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="thejack.dictator"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -12,7 +12,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@android:style/Theme.Holo.NoActionBar.Overscan" 
+        tools:ignore="NewApi">
         <activity
             android:name="thejack.dictator.MainActivity"
             android:label="@string/app_name" >
@@ -30,6 +31,10 @@
         <activity
             android:name="thejack.dictator.GameActivity"
             android:label="@string/title_activity_game" >
+        </activity>
+        <activity
+            android:name="thejack.dictator.EndActivity"
+            android:label="@string/title_activity_end" >
         </activity>
     </application>
 
