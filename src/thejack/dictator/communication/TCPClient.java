@@ -131,7 +131,7 @@ public class TCPClient {
 			int n = Integer.parseInt(args.get(0));
 			String word = args.get(1);
 			int timeout = Integer.parseInt(args.get(2));
-			GamePlay.getInstance().playWord(n, word, timeout);
+			GamePlay.getInstance().pushRound(n, word, timeout);
 		} else if (commandType.equals("update_scores")) {
 			List<Integer> scores = new ArrayList<Integer>();
 

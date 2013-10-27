@@ -26,10 +26,6 @@ public class BaseActivity extends Activity implements IDictatorListener {
 	}
 
 	@Override
-	public void onRound(int n, String word, int timeout) {
-	}
-
-	@Override
 	public void onGameEnd(List<Player> opponents) {
 	}
 
