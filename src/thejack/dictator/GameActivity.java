@@ -40,6 +40,8 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 	private GameCycleTask gameTask;
 
+	private boolean speakingInited = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -67,9 +69,10 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				boolean handled = false;
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
+					changeTimerColor(Color.GREEN);
+					v.setText("");
 					String word = v.getText().toString();
 					gamePlay.sendAnswer(word);
-					v.setText("");
 				}
 				return handled;
 			}
@@ -85,10 +88,13 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		List<Player> opponents = GamePlay.getInstance().getOpponents();
 		updateScoreBoard(opponents);
+
+		Log.w("GameActivity", "OnCreated.");
 	}
 
 	@Override
 	public void onInit(int status) {
+		Log.w("GameActivity", "onInit");
 		if (status == TextToSpeech.SUCCESS) {
 			int result = speech.setLanguage(Locale.US);
 
@@ -97,6 +103,7 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 				Log.e("TTS", "This Language is not supported");
 			}
 		}
+		speakingInited = true;
 	}
 
 	@Override
@@ -148,62 +155,60 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 		@Override
 		protected Void doInBackground(String... params) {
 			currentRound = GamePlay.getInstance().getCurrentRound();
-
+			Log.w("GameCycleTask", "Started.");
 			while (!isCancelled()) {
-
-				if (currentRound == null) {
-					currentRound = GamePlay.getInstance().getNextRound();
-					if (currentRound != null) {
-						currentRound.startedAt = System.currentTimeMillis();
-						// Deployment.Current.Dispatcher.BeginInvoke(() =>
-						// {
-						// this.AnswerTextBox.Text = "";
-						// this.RoundTextBlock.Text = "Round " +
-						// currentRound.RoundNumber;
-						// });
-						speech.speak(currentRound.getWord(), TextToSpeech.QUEUE_ADD, null);
-					}
-				}
-				if (currentRound != null) {
-					if (currentRound.endedAt > 0) {
-						if ((System.currentTimeMillis() - currentRound.endedAt) > 1000) {
-							currentRound = null;
+				if (speakingInited) {
+					Log.w("GameCycleTask", "Current round: " + currentRound);
+					if (currentRound == null) {
+						currentRound = GamePlay.getInstance().getNextRound();
+						if (currentRound != null) {
+							currentRound.startedAt = System.currentTimeMillis();
+							// Deployment.Current.Dispatcher.BeginInvoke(() =>
+							// {
+							// this.AnswerTextBox.Text = "";
+							// this.RoundTextBlock.Text = "Round " +
+							// currentRound.RoundNumber;
+							// });
+							Log.w("GameCycleTask", "Current word: " + currentRound.getWord());
+							speech.speak(currentRound.getWord(), TextToSpeech.QUEUE_ADD, null);
 						}
-					} else if (currentRound.startedAt + 1000 * currentRound.getTimeout() < System
-							.currentTimeMillis()) {
-						countDownTimerTextView.post(new Runnable() {
-							@Override
-							public void run() {
-								countDownTimerTextView.setText("00:00");
+					}
+					if (currentRound != null) {
+						if (currentRound.endedAt > 0) {
+							if ((System.currentTimeMillis() - currentRound.endedAt) > 1000) {
+								currentRound = null;
 							}
-						});
+						} else if (currentRound.startedAt + 1000 * currentRound.getTimeout() < System
+								.currentTimeMillis()) {
+							countDownTimerTextView.post(new Runnable() {
+								@Override
+								public void run() {
+									countDownTimerTextView.setText("00:00");
+								}
+							});
 
-						currentRound.endedAt = System.currentTimeMillis();
-						// TimerTextBlock.Foreground = new
-						// SolidColorBrush(Colors.Red);
-					} else {
-						final long millisUntilFinished = currentRound.startedAt + 1000
-								* currentRound.getTimeout() - System.currentTimeMillis();
-						countDownTimerTextView.post(new Runnable() {
-							@Override
-							public void run() {
-								Date date = new Date(millisUntilFinished);
-								DateFormat formatter = new SimpleDateFormat("mm:ss");
-								String dateFormatted = formatter.format(date);
+							currentRound.endedAt = System.currentTimeMillis();
+							// TimerTextBlock.Foreground = new
+							// SolidColorBrush(Colors.Red);
+						} else {
+							final long millisUntilFinished = currentRound.startedAt + 1000
+									* currentRound.getTimeout() - System.currentTimeMillis();
+							countDownTimerTextView.post(new Runnable() {
+								@Override
+								public void run() {
+									Date date = new Date(millisUntilFinished);
+									DateFormat formatter = new SimpleDateFormat("mm:ss");
+									String dateFormatted = formatter.format(date);
 
-								countDownTimerTextView.setText(dateFormatted);
-								// if (timeLeft.Seconds < 5 &&
-								// !currentRound.Answered)
-								// {
-								// this.TimerTextBlock.Foreground = redBrush;
-								// }
-								// else if (!currentRound.Answered)
-								// {
-								// this.TimerTextBlock.Foreground =
-								// defaultBrush;
-								// }
-							}
-						});
+									countDownTimerTextView.setText(dateFormatted);
+									if (millisUntilFinished < 5000 && !currentRound.answered) {
+										asyncChangeTimeColor(Color.RED);
+									} else if (!currentRound.answered) {
+										asyncChangeTimeColor(Color.BLACK);
+									}
+								}
+							});
+						}
 					}
 
 					try {
@@ -240,5 +245,18 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			}
 		}
 		scoresTextView.setText(scoresText.toString());
+	}
+
+	private void asyncChangeTimeColor(final int color) {
+		countDownTimerTextView.post(new Runnable() {
+			@Override
+			public void run() {
+				changeTimerColor(color);
+			}
+		});
+	}
+
+	private void changeTimerColor(int color) {
+		countDownTimerTextView.setTextColor(color);
 	}
 }
