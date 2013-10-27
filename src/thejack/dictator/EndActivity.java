@@ -17,25 +17,43 @@ public class EndActivity extends Activity {
 		setContentView(R.layout.activity_end);
 
 		TextView scoreBoardView = (TextView) findViewById(R.id.scoreBoardView);
+		TextView scoreBoardPointsView = (TextView) findViewById(R.id.scorePointsView);
 
 		List<Player> players = GamePlay.getInstance().getOpponents();
 
 		Comparator<Player> comparator = new Comparator<Player>() {
 			public int compare(Player p1, Player p2) {
-				return p1.getScore() - p2.getScore(); // use your logic
+				return p2.getScore() - p1.getScore(); // use your logic
 			}
 		};
 
 		Collections.sort(players, comparator);
 
-		StringBuilder scoreBoardString = new StringBuilder();
+		StringBuilder scoreBoardBuilder = new StringBuilder();
 		for (int i = 0; i < players.size(); i++) {
-			scoreBoardString.append(String.format("#%-4s  ", (i + 1) + "."));
-			scoreBoardString.append(String.format("%-15s", players.get(i).getName()));
-			scoreBoardString.append("    " + players.get(i).getScore() + " points");
-			scoreBoardString.append("\n");
+			StringBuilder rowStringBuilder = new StringBuilder();
+			rowStringBuilder.append("#" + (i + 1) + ".");
+			while (rowStringBuilder.length() < 6) {
+				rowStringBuilder.append(" ");
+			}
+
+			rowStringBuilder.append(players.get(i).getName());
+			while (rowStringBuilder.length() < 20 + 6) {
+				rowStringBuilder.append(" ");
+			}
+			rowStringBuilder.append("\n");
+			scoreBoardBuilder.append(rowStringBuilder);
+		}
+		StringBuilder scoreBoardPointsBuilder = new StringBuilder();
+		for (int i = 0; i < players.size(); i++) {
+			StringBuilder rowStringBuilder = new StringBuilder();
+			rowStringBuilder.append(players.get(i).getScore() + " points");
+			rowStringBuilder.append("\n");
+
+			scoreBoardPointsBuilder.append(rowStringBuilder);
 		}
 
-		scoreBoardView.setText(scoreBoardString.toString());
+		scoreBoardView.setText(scoreBoardBuilder.toString());
+		scoreBoardPointsView.setText(scoreBoardPointsBuilder.toString());
 	}
 }

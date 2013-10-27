@@ -49,7 +49,6 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_game);
-		// Remove title bar
 		textField = (EditText) findViewById(R.id.wordField);
 		textField.requestFocus();
 

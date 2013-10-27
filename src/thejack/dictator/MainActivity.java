@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 
 @SuppressLint("NewApi")
 public class MainActivity extends BaseActivity implements TextToSpeech.OnInitListener {
@@ -24,6 +25,13 @@ public class MainActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		// connect to the server
 		new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+
+		findViewById(R.id.exitField).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				android.os.Process.killProcess(android.os.Process.myPid());
+			}
+		});
 	}
 
 	public void onClickCompetativeButton(View v) {
