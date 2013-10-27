@@ -6,10 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import thejack.dictator.gameplay.GamePlay;
 import thejack.dictator.gameplay.Player;
-import thejack.dictator.gameplay.SoundDictator;
+import thejack.dictator.gameplay.Round;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.tts.TextToSpeech;
@@ -24,14 +26,14 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 	private EditText textField;
 
-	private SoundDictator dictator;
-
 	private TextView myScoreTextView;
 
 	private TextView scoresTextView;
 
 	private TextView countDownTimerTextView;
 
+	private GameCycleTask gameTask;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,6 +50,8 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 
 		speech = new TextToSpeech(this, this);
 
+		
+		
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.showSoftInput(textField, InputMethodManager.SHOW_IMPLICIT);
 	}
@@ -65,6 +69,20 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		gameTask = new GameCycleTask();
+		gameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, "");
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		if(gameTask != null) {
+			gameTask.cancel(true);
+		}
+	}
+	
 	public void onRound(final int n, final String word, final int timeout) {
 		myScoreTextView.post(new Runnable() {
 			@Override
@@ -87,7 +105,91 @@ public class GameActivity extends BaseActivity implements TextToSpeech.OnInitLis
 			}
 		});
 	}
+	
+	
+	
+	public class GameCycleTask extends android.os.AsyncTask<String,Void,Void>
+	{
+		private Round currentRound;
+		
+		@Override
+		protected Void doInBackground(String... params) {
+			currentRound = GamePlay.getInstance().getCurrentRound();
+			
+			while(!isCancelled()) {
+				
+				if (currentRound == null)
+                {
+                    currentRound = GamePlay.getInstance().getNextRound();
+                    if (currentRound != null)
+                    {
+                    	currentRound.startedAt = System.currentTimeMillis();
+//                        Deployment.Current.Dispatcher.BeginInvoke(() =>
+//                        {
+//                            this.AnswerTextBox.Text = "";
+//                            this.RoundTextBlock.Text = "Round " + currentRound.RoundNumber;
+//                        });
+                        speech.speak(currentRound.getWord(), TextToSpeech.QUEUE_ADD, null);
+                    }
+                }
+                if (currentRound != null)
+                {
+                    if (currentRound.endedAt > 0)
+                    {
+                        if ((System.currentTimeMillis() - currentRound.endedAt) > 1000)
+                        {
+                            currentRound = null;
+                        }
+                    }
+                    else if (currentRound.startedAt + 1000 * currentRound.getTimeout() < 
+                    		System.currentTimeMillis())
+                    {
+                    	countDownTimerTextView.post(new Runnable() {
+							@Override
+							public void run() {
+								countDownTimerTextView.setText("00:00");
+							}
+                    	});
+                    	
+                        currentRound.endedAt = System.currentTimeMillis();
+                        //TimerTextBlock.Foreground = new SolidColorBrush(Colors.Red);
+                    }
+                    else
+                    {
+                    	  final long millisUntilFinished = currentRound.startedAt + 1000 * currentRound.getTimeout()
+                    			  - System.currentTimeMillis();
+                    	  countDownTimerTextView.post(new Runnable() {
+  							@Override
+  							public void run() {
+  								Date date = new Date(millisUntilFinished);
+  								DateFormat formatter = new SimpleDateFormat("mm:ss");
+  								String dateFormatted = formatter.format(date);
 
+  								countDownTimerTextView.setText(dateFormatted);
+//                            if (timeLeft.Seconds < 5 && !currentRound.Answered)
+//                            {
+//                                this.TimerTextBlock.Foreground = redBrush;
+//                            }
+//                            else if (!currentRound.Answered)
+//                            {
+//                                this.TimerTextBlock.Foreground = defaultBrush;
+//                            }
+                        }});
+                    }
+
+                }
+                
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// 
+				}
+			}
+			return null;
+		}
+		
+	}
+	
 	@Override
 	public void onUpdateScoreBoard(final List<Player> opponents) {
 		scoresTextView.post(new Runnable() {

@@ -1,16 +1,14 @@
 package thejack.dictator.gameplay;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import thejack.dictator.communication.IDictatorListener;
 
 public class GamePlay {
 	private Player me;
-
-	private int currentRound;
-
-	private String currentWord;
 
 	private boolean isRunning;
 
@@ -18,6 +16,10 @@ public class GamePlay {
 
 	private List<Player> opponents;
 
+	private Queue<Round> rounds;
+	
+	private Round currentRound;
+	
 	List<IDictatorListener> subscribers;
 
 	public void addSubscriber(IDictatorListener dictatorListener) {
@@ -36,11 +38,11 @@ public class GamePlay {
 	}
 
 	private GamePlay() {
-		currentRound = -1;
 		isRunning = false;
 		opponents = new ArrayList<Player>();
 		me = new Player("pesho");
 		subscribers = new ArrayList<IDictatorListener>();
+		rounds = new LinkedList<Round>();
 	}
 
 	public void setMyName(String name) {
@@ -49,13 +51,15 @@ public class GamePlay {
 
 	public void startGame(List<String> players) {
 		opponents.clear();
+		rounds.clear();
+		currentRound = null;
+		
 		for (String playerName : players) {
 			Player opponent = new Player(playerName);
 			opponents.add(opponent);
 		}
 
 		isRunning = true;
-		currentRound = 1;
 
 		for (IDictatorListener listener : subscribers) {
 			listener.onGameStarted();
@@ -90,21 +94,26 @@ public class GamePlay {
 		}
 	}
 
-	public void playWord(int round, String word, int timeout) {
-		currentRound = round;
-		currentWord = word;
-
-		for (IDictatorListener listener : subscribers) {
-			listener.onRound(round, word, timeout);
+	public synchronized void pushRound(int round, String word, int timeout) {
+		rounds.add(new Round(round,word,timeout));
+	}
+	
+	public synchronized Round getNextRound() {
+		if(rounds.size() > 0) {
+			Round nextRound = rounds.remove();
+			currentRound = nextRound;
+			return nextRound;
+		} else {
+			return null;
 		}
+	}
+	
+	public Round getCurrentRound() {
+		return currentRound;
 	}
 
 	public boolean isRunning() {
 		return isRunning;
-	}
-
-	public int getCurrentRound() {
-		return currentRound;
 	}
 
 	public void updateMyScore(int myScore) {
